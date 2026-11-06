@@ -1,0 +1,25 @@
+# Large, user-specific offline library data: keep on the SSD, not in GitHub.
+/content/**
+!/content/*/
+!/content/*/SOURCES.md
+!/content/*/.gitkeep
+
+# Rebuildable search data, backups, and computer-specific metadata.
+/index/
+/backups/
+.DS_Store
+._*
+**/._*
+__pycache__/
+*.py[cod]
+
+# Bundled platform runtimes and Kiwix executables/archives (hundreds of MB).
+/app/runtime/packages/
+/app/bin/*
+/app/downloads/
+
+# Local editor and OS files.
+.vscode/
+.idea/
+Thumbs.db
+/app/vendor/
