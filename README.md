@@ -26,3 +26,7 @@ Empty content folders are represented by `.gitkeep` files. Put real documents in
 ## Important limits
 
 The library is for offline reference and does not provide live alerts, current shelter status, live routing, or an interactive GIS viewer. Search indexes extractable PDF text; scanned image-only PDFs need OCR. Consult current official guidance when online and keep safety-critical references up to date.
+
+## Development source checkout
+
+The files here are the maintainable application source, not the complete ready-to-run SSD package. The portable runtimes, Kiwix executables, search database, backups, and downloaded reference collection are omitted from GitHub. The small pure-Python `pypdf` package is vendored under `app/vendor/` so PDF text search remains part of the application source. This source checkout is not the complete ready-to-run SSD package; use the external SSD for portable launchers and the full offline library.
