@@ -41,6 +41,7 @@ K = [
  ('generators','Generators & alternative energy','Backup power, batteries, solar, and generators','☼'),
  ('radio','Amateur radio & emergency communications','Radio basics, procedures, and equipment guides','⌁'),
  ('maps','Navigation & topographic maps','Local maps, atlases, and navigation references','⌖'),
+ ('military','Military Field Manuals','Military publications for communications, medical, maintenance, and field skills','▤'),
  ('preparedness','Emergency preparedness & evacuation','Plans, checklists, alerts, and evacuation information','▣'),
  ('other','Other references','Additional locally stored materials','＋'),
 ]

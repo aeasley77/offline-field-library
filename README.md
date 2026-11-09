@@ -21,6 +21,7 @@ Empty content folders are represented by `.gitkeep` files. Put real documents in
 - [`PROJECT HANDOFF.md`](PROJECT%20HANDOFF.md): architecture, decisions, content inventory, history, safe update procedures, and future-agent notes.
 - [`UPDATE GUIDE.md`](UPDATE%20GUIDE.md): practical content refresh and backup steps.
 - [`app/MAP GUIDE.md`](app/MAP%20GUIDE.md): statewide offline map details and safe tile refresh steps.
+- `content/military/SOURCES.md`: T.REX ARMS Vault reference and instructions for adding verified manuals.
 - [`docs/Offline_Field_Library_Technical_Case_Study.pdf`](docs/Offline_Field_Library_Technical_Case_Study.pdf): shareable technical case study.
 - `content/<category>/SOURCES.md`: provenance and coverage notes by category.
 

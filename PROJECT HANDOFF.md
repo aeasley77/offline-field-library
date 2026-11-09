@@ -91,6 +91,10 @@ The dashboard links to `app/map.html`, which uses vendored MapLibre GL JS, PMTil
 
 The initial Charlotte archive was extracted with PMTiles CLI 1.31.2 from the Protomaps snapshot dated 2026-11-07. On 2026-11-08, the viewer expanded to North Carolina using bounds -84.4, 33.7, -75.3, 36.7, zoom 0–14. The statewide file is about 388 MB, SHA-256 `25e85890683a14482ba15159031c6f12075b6e835aa1589acd51527f8d27dc58`. Remote extraction transferred about 427 MB without downloading the 129 GB planet archive. The old 57 MB Charlotte map remains at `content/maps/charlotte-region.pmtiles`. See `app/MAP GUIDE.md` and `content/maps/SOURCES.md` for source, attribution, and update steps. The server supports byte-range requests so the browser reads only needed sections of PMTiles.
 
+## Military Field Manuals collection — November 9, 2026
+
+Added a separate `military` category to the dashboard, linked to the T.REX ARMS Field Manual Vault, plus `content/military/SOURCES.md` for provenance and selected offline additions. The site reported 4,215 publications/724,471 pages and says PDFs and EPUBs are individually available. No bulk archive is offered. The site's `robots.txt` permits general public pages but disallows `/api/`, `/api2/`, and `*__data.json`; direct non-browser page requests were blocked by Cloudflare. We did not use or bypass those disallowed endpoints, and we did not download or redistribute Vault documents. The complete offline mirror remains unbuilt; aggregate size and reuse status for every record have not been established. The category is online-only until individually approved files are added under `content/military/`.
+
 ## Updating the Wikipedia ZIM safely
 
 The current file is the August 2026 English Wikipedia maxi archive, around 119 GiB. Kiwix describes maxi as the full version; nopic is smaller but removes pictures. Kiwix currently says incremental ZIM updates are not available, so plan for downloading a complete replacement, not a small delta. See the [Kiwix catalog FAQ](https://get.kiwix.org/en/solutions/catalog/) and the [official Kiwix library](https://library.kiwix.org/).
