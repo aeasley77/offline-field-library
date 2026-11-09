@@ -20,12 +20,13 @@ Empty content folders are represented by `.gitkeep` files. Put real documents in
 
 - [`PROJECT HANDOFF.md`](PROJECT%20HANDOFF.md): architecture, decisions, content inventory, history, safe update procedures, and future-agent notes.
 - [`UPDATE GUIDE.md`](UPDATE%20GUIDE.md): practical content refresh and backup steps.
+- [`app/MAP GUIDE.md`](app/MAP%20GUIDE.md): regional offline map details and safe tile refresh steps.
 - [`docs/Offline_Field_Library_Technical_Case_Study.pdf`](docs/Offline_Field_Library_Technical_Case_Study.pdf): shareable technical case study.
 - `content/<category>/SOURCES.md`: provenance and coverage notes by category.
 
 ## Important limits
 
-The library is for offline reference and does not provide live alerts, current shelter status, live routing, or an interactive GIS viewer. Search indexes extractable PDF text; scanned image-only PDFs need OCR. Consult current official guidance when online and keep safety-critical references up to date.
+The library is for offline reference and does not provide live alerts, current shelter status, live routing, or GPS navigation. It includes a zoomable regional reference map. Search indexes extractable PDF text; scanned image-only PDFs need OCR. Consult current official guidance when online and keep safety-critical references up to date.
 
 ## Development source checkout
 

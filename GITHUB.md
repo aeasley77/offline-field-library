@@ -6,9 +6,9 @@ Private source repository: <https://github.com/aeasley77/offline-field-library>
 
 The repository contains the application source, macOS and Windows launchers, category `SOURCES.md` provenance notes, project maintenance documents, the technical case-study PDF, and the small vendored `pypdf` package used for PDF text search.
 
-It does not contain the approximately 119 GiB Wikipedia ZIM, downloaded reference PDFs and maps, generated SQLite search index, backups, compressed Python runtimes, or Kiwix platform binaries. The `.gitignore` excludes those data and binary paths. Keep the reference library backed up separately on another physical drive; GitHub is not a backup of the offline content.
+It does not contain the approximately 119 GiB Wikipedia ZIM, downloaded reference PDFs and maps (including the 60 MB regional PMTiles archive), generated SQLite search index, backups, compressed Python runtimes, or Kiwix platform binaries. The `.gitignore` excludes those data and binary paths. Keep the reference library backed up separately on another physical drive; GitHub is not a backup of the offline content.
 
-The repository is a source and documentation copy, not a full portable application package. To run the finished library, use the full directory on the external SSD and its bundled launchers, Python runtimes, and Kiwix executables. Those runtime files are intentionally omitted from GitHub.
+The repository is a source and documentation copy, not a full portable application package. To run the finished library, use the full directory on the external SSD and its bundled launchers, Python runtimes, Kiwix executables, and local content data. Those runtime and content files are intentionally omitted from GitHub.
 
 ## Share it with coworkers
 

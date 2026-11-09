@@ -20,7 +20,7 @@ The library runs from this external SSD and keeps its reference files separate f
 
 The dashboard and Kiwix are configured to bind to 127.0.0.1, so they are available only on the computer running them. Restart any Kiwix process launched before this loopback setting was added. It uses Python's standard library and SQLite FTS5; PDF search uses the vendored pure-Python pypdf package. No internet connection is needed at runtime.
 
-The dashboard indexes embedded PDF text up to 100 MiB, 800 pages, and 1 million characters per PDF, plus HTML, text, and Markdown. Scanned image-only PDFs need OCR. Large map sheets are indexed by filename and source notes. Supported files include PDF, HTML, text, Markdown, images, ZIM, GeoJSON, GPX, and KML. The first version does not render raw GIS datasets or tile packages itself.
+The dashboard indexes embedded PDF text up to 100 MiB, 800 pages, and 1 million characters per PDF, plus HTML, text, and Markdown. Scanned image-only PDFs need OCR. Large map sheets are indexed by filename and source notes. Supported reference files include PDF, HTML, text, Markdown, images, ZIM, GeoJSON, GPX, and KML. A separate map viewer renders the bundled PMTiles regional basemap; it does not render arbitrary raw GIS datasets or live map services.
 
 ## Platform limits
 
@@ -38,3 +38,9 @@ See UPDATE GUIDE.md for refreshing references and PROJECT HANDOFF.md for the ful
 - If ZIM files do not open, check that a ZIM file exists under content/encyclopedia/ and visit http://127.0.0.1:8081.
 - If PDF search finds nothing, restart to rebuild the index. Scanned image-only PDFs need OCR; Poppler's pdftotext is an optional fallback.
 - If the drive status is wrong, ensure the external SSD is mounted before launching. Do not remove it while the application is running.
+
+## Offline regional map
+
+Open **Offline Map** in the dashboard for an interactive map of the Charlotte region, including Albemarle and Harrisburg. The viewer code, MapLibre GL JS, PMTiles client, Protomaps style package, fonts, sprites, and regional tile archive are all served from this drive. The local server supports HTTP byte-range responses so the browser can read only the needed PMTiles sections. The map continues to work with Wi-Fi and Ethernet disconnected. It is a browse-and-coordinate map, not turn-by-turn navigation, live traffic, or closure data.
+
+The vector archive is `content/maps/charlotte-region.pmtiles`; its source, bounds, snapshot date, checksum, and safe update steps are in [`../content/maps/SOURCES.md`](../content/maps/SOURCES.md) and [`MAP GUIDE.md`](MAP%20GUIDE.md). The archive is user data and is excluded from GitHub with the rest of the map/reference collection. Do not replace it in place without first validating a staged candidate and preserving the old archive for rollback.

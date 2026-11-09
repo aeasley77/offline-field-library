@@ -85,6 +85,12 @@ The library grew in phases: the original dashboard and category shell; fixes to 
 
 Notable deliberate gaps: no full Toyota factory repair manual was copied because Toyota's service information is accessed through its official Techinfo service and may require a subscription; no interactive offline map renderer is included; no claim is made that emergency guidance or live information is complete.
 
+## Map implementation update — November 8, 2026
+
+The earlier note above that no interactive offline map renderer was included is superseded by this update. The dashboard now links to `app/map.html`, which uses vendored MapLibre GL JS, PMTiles JS, Protomaps basemap styles, local glyphs/sprites, and the local vector archive `content/maps/charlotte-region.pmtiles`. The viewer shows the Charlotte/Albemarle/Harrisburg region, supports quick jumps and coordinate readout, and lists the static map PDFs alongside it. It is deliberately a regional reference map rather than live routing, GPS navigation, traffic, or current road status.
+
+The archive was extracted from the Protomaps daily planet PMTiles archive with CLI 1.31.2 on 2026-11-08. Source snapshot date: 2026-11-07. The clipped bounds are -81.5, 34.7, -79.5, 36.0; zoom range 0–14; size about 60 MB; SHA-256 `f375499abbb6b23f3d0789b484c58154ffc427424c3edf72a64f8dce66d29ca4`. PMTiles remote extraction fetched only region chunks, not the 129 GB planet file. See `app/MAP GUIDE.md` and `content/maps/SOURCES.md` for the source, license/attribution notes, and verify/rollback update steps. The server now supports single byte-range requests for local content so the browser can read the PMTiles archive without loading it all at once.
+
 ## Updating the Wikipedia ZIM safely
 
 The current file is the August 2026 English Wikipedia maxi archive, around 119 GiB. Kiwix describes maxi as the full version; nopic is smaller but removes pictures. Kiwix currently says incremental ZIM updates are not available, so plan for downloading a complete replacement, not a small delta. See the [Kiwix catalog FAQ](https://get.kiwix.org/en/solutions/catalog/) and the [official Kiwix library](https://library.kiwix.org/).

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#19251f">
+  <title>Offline Regional Map · Field Library</title>
+  <link rel="stylesheet" href="/app/map-assets/maplibre-gl.css">
+  <link rel="stylesheet" href="/map.css">
+</head>
+<body class="map-page">
+  <header class="map-header">
+    <a class="map-brand" href="/"><span class="brand-mark">F</span><span>FIELD<span>LIBRARY</span></span></a>
+    <div class="map-heading"><div class="kicker">OFFLINE NAVIGATION REFERENCE</div><h1>Charlotte Region</h1></div>
+    <div class="map-version"><span class="live-dot"></span><span id="map-status">Loading local map…</span></div>
+    <a class="back-link" href="/">← DASHBOARD</a>
+  </header>
+  <main class="map-layout">
+    <aside class="map-sidebar">
+      <section class="map-tools">
+        <div class="kicker">QUICK JUMP</div>
+        <h2>Regional locations</h2>
+        <div class="jump-buttons">
+          <button data-center="albemarle">Albemarle</button>
+          <button data-center="harrisburg">Harrisburg</button>
+          <button data-center="charlotte">Charlotte</button>
+        </div>
+        <div class="coords"><span>MAP POINTER</span><b id="coordinates">Click the map for coordinates</b></div>
+        <p class="map-note">Map tiles are stored on this drive. This viewer needs no internet connection and does not calculate routes or show live closures.</p>
+      </section>
+      <section class="sheet-section">
+        <div class="kicker">ALSO ON THIS DRIVE</div>
+        <h2>Topographic &amp; road sheets</h2>
+        <label class="sheet-search"><span>⌕</span><input id="sheet-filter" type="search" placeholder="Filter local map sheets" autocomplete="off"></label>
+        <div id="sheet-list" class="sheet-list"><p class="sheet-empty">Loading map sheet list…</p></div>
+      </section>
+      <footer class="map-sidebar-footer">MAP DATA: OPENSTREETMAP · SNAPSHOT 07 NOV 2026</footer>
+    </aside>
+    <section class="map-view" aria-label="Interactive offline map">
+      <div id="map" role="application" aria-label="Map of the Charlotte region"></div>
+      <div class="map-error" id="map-error" hidden></div>
+      <div class="map-credit">© OpenStreetMap contributors · ODbL · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">License</a></div>
+    </section>
+  </main>
+  <script src="/app/map-assets/pmtiles.js"></script>
+  <script src="/app/map-assets/basemaps.js"></script>
+  <script type="module" src="/app/map.js"></script>
+</body>
+</html>

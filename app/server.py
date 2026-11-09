@@ -166,12 +166,33 @@ class Handler(BaseHTTPRequestHandler):
             rel=unquote(u.path[len('/content/'):])
             p=(CONTENT/rel).resolve()
             if not p.is_relative_to(CONTENT.resolve()) or not p.is_file(): self.send_error(404); return
-            typ=mimetypes.guess_type(p.name)[0] or 'application/octet-stream'
+            typ='application/vnd.pmtiles' if p.suffix.lower()=='.pmtiles' else (mimetypes.guess_type(p.name)[0] or 'application/octet-stream')
             try: size=p.stat().st_size; stream=p.open('rb')
             except OSError: self.send_error(404); return
-            self.send_response(200); self.send_header('Content-Type',typ); self.send_header('Content-Length',str(size)); self.send_header('X-Content-Type-Options','nosniff'); self.end_headers()
+            start,end,status=0,size-1,200
+            requested=self.headers.get('Range')
+            if requested:
+                match=re.fullmatch(r'bytes=(\d*)-(\d*)',requested.strip())
+                if not match or size==0:
+                    stream.close(); self.send_response(416); self.send_header('Content-Range',f'bytes */{size}'); self.send_header('Content-Length','0'); self.end_headers(); return
+                first,last=match.groups()
+                if first:
+                    start=int(first); end=int(last) if last else size-1
+                else:
+                    count=int(last or '0'); start=max(0,size-count); end=size-1
+                if start>=size or end<start:
+                    stream.close(); self.send_response(416); self.send_header('Content-Range',f'bytes */{size}'); self.send_header('Content-Length','0'); self.end_headers(); return
+                end=min(end,size-1); status=206
+            length=max(0,end-start+1)
+            self.send_response(status); self.send_header('Content-Type',typ); self.send_header('Content-Length',str(length)); self.send_header('Accept-Ranges','bytes'); self.send_header('X-Content-Type-Options','nosniff')
+            if status==206: self.send_header('Content-Range',f'bytes {start}-{end}/{size}')
+            self.end_headers()
             with stream:
-                shutil.copyfileobj(stream,self.wfile,1024*1024)
+                stream.seek(start); remaining=length
+                while remaining:
+                    chunk=stream.read(min(1024*1024,remaining))
+                    if not chunk: break
+                    self.wfile.write(chunk); remaining-=len(chunk)
             return
         rel=unquote(u.path.lstrip('/'))
         if rel in {'README.html','UPDATE GUIDE.md','PROJECT HANDOFF.md'}: target=ROOT/rel
