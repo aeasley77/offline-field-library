@@ -1,6 +1,7 @@
 import * as maplibregl from '/app/map-assets/maplibre-gl.mjs';
 
 const locations={
+  statewide:{center:[-79.85,35.2],zoom:7.1},
   albemarle:{center:[-80.200,35.350],zoom:11},
   harrisburg:{center:[-80.652,35.324],zoom:12},
   charlotte:{center:[-80.843,35.227],zoom:11}
@@ -8,7 +9,7 @@ const locations={
 const statusLine=document.querySelector('#map-status');
 const errorBox=document.querySelector('#map-error');
 const coordinates=document.querySelector('#coordinates');
-const archiveUrl=new URL('/content/maps/charlotte-region.pmtiles',location.origin).href;
+const archiveUrl=new URL('/content/maps/north-carolina.pmtiles',location.origin).href;
 
 function showError(message){
   errorBox.hidden=false;
@@ -41,7 +42,7 @@ async function loadMap(){
     const map=new maplibregl.Map({
       container:'map',style,
       center:[header.centerLon,header.centerLat],
-      zoom:8.2,
+      zoom:7.0,
       minZoom:4,
       maxZoom:14,
       maxBounds:[[header.minLon-0.35,header.minLat-0.25],[header.maxLon+0.35,header.maxLat+0.25]],
@@ -65,7 +66,7 @@ async function loadMap(){
     }));
   }catch(error){
     console.error(error);
-    showError('The regional tile archive could not be opened. Check that content/maps/charlotte-region.pmtiles is present and the dashboard server has restarted.');
+    showError('The North Carolina tile archive could not be opened. Check that content/maps/north-carolina.pmtiles is present and the dashboard server has restarted.');
   }
 }
 
