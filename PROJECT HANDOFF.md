@@ -93,7 +93,15 @@ The initial Charlotte archive was extracted with PMTiles CLI 1.31.2 from the Pro
 
 ## Military Field Manuals collection — November 9, 2026
 
-Added a separate `military` category to the dashboard, linked to the T.REX ARMS Field Manual Vault, plus `content/military/SOURCES.md` for provenance and selected offline additions. The site reported 4,215 publications/724,471 pages and says PDFs and EPUBs are individually available. No bulk archive is offered. The site's `robots.txt` permits general public pages but disallows `/api/`, `/api2/`, and `*__data.json`; direct non-browser page requests were blocked by Cloudflare. We did not use or bypass those disallowed endpoints, and we did not download or redistribute Vault documents. The complete offline mirror remains unbuilt; aggregate size and reuse status for every record have not been established. The category is online-only until individually approved files are added under `content/military/`.
+On November 9, 2026, a separate `military` category linked to the T.REX ARMS Field Manual Vault and `content/military/SOURCES.md` recorded its reported catalog size. At that point the project had not downloaded Vault documents. The user later supplied a collection from a friend; see the November 10 update below for the current local collection and application behavior. The source website's general public-domain description has not been independently confirmed for every item.
+
+## Incremental search indexing and local manuals — November 10, 2026
+
+The user supplied a collection received from a friend who downloaded it from the T.REX ARMS Vault. The SSD now contains 4,215 PDF and 4,215 EPUB files (about 67 GB total), grouped by collection, branch, and publication series. The user's report is the provenance; individual source URLs and distribution statements have not been independently verified. `content/military/SOURCES.md` records this limitation and inventory. The content itself is user data and remains outside GitHub.
+
+The previous server rebuilt all full-text entries synchronously before binding port 8765. The macOS launcher waits five minutes for the dashboard and then gives up, so large PDF additions could prevent startup. The server now binds first and starts index reconciliation on a background thread. SQLite `file_state` stores each indexed path, size, modification time, and indexed time. Existing FTS entries migrate into this manifest so unchanged content can be retained; changed/new files are extracted in small batches, deleted files are removed, and progress/error state is exposed at `/api/index-status`. Search can read the last committed index while batches are processed. If the manifest is missing or empty, the first pass may still take a long time, but the dashboard is available throughout.
+
+The military category uses a dedicated local PDF full-text search with collection and branch filters. It does not send all thousands of file paths to the browser. The main search excludes the military category by default and offers an explicit **Include military manuals** checkbox. EPUB files remain available from the SSD folder but their contents are not indexed by this implementation. A later development option is EPUB indexing if it proves valuable.
 
 ## Updating the Wikipedia ZIM safely
 

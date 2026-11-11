@@ -12,6 +12,7 @@ import sqlite3
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
@@ -47,11 +48,27 @@ K = [
 ]
 ALLOWED = {'.pdf','.html','.htm','.txt','.md','.zim','.epub','.jpg','.jpeg','.png','.webp','.mbtiles','.pmtiles','.tif','.tiff','.geojson','.gpx','.kml'}
 
-def db_connect():
+def db_connect(create_schema=True):
     INDEX.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(INDEX)
-    con.execute('CREATE VIRTUAL TABLE IF NOT EXISTS docs USING fts5(path UNINDEXED, title, category, body)')
+    con = sqlite3.connect(INDEX, timeout=30)
+    if create_schema:
+        con.execute('CREATE VIRTUAL TABLE IF NOT EXISTS docs USING fts5(path UNINDEXED, title, category, body)')
+        con.execute('CREATE TABLE IF NOT EXISTS file_state (path TEXT PRIMARY KEY, size INTEGER NOT NULL, mtime_ns INTEGER NOT NULL, indexed_at REAL NOT NULL)')
     return con
+
+INDEX_EXTS = {'.pdf', '.html', '.htm', '.txt', '.md', '.zim'}
+MILITARY_COLLECTIONS = {'Current Doctrine', 'Recent Archive', 'Lessons Learned', 'Historic'}
+MILITARY_BRANCHES = {'Army', 'Navy', 'Air Force', 'Marine Corps', 'Joint'}
+INDEX_STATUS_LOCK = threading.Lock()
+INDEX_STATUS = {'state': 'starting', 'indexed': 0, 'total': 0, 'pending': 0, 'error': None}
+
+def set_index_status(**values):
+    with INDEX_STATUS_LOCK:
+        INDEX_STATUS.update(values)
+
+def get_index_status():
+    with INDEX_STATUS_LOCK:
+        return dict(INDEX_STATUS)
 
 def extract_pdf_text(p: Path) -> str:
     """Extract embedded text from a PDF, with an optional Poppler fallback."""
@@ -115,19 +132,70 @@ def category_of(p: Path) -> str:
     except (ValueError, IndexError): return 'other'
 
 def build_index():
-    con = db_connect()
-    con.execute('DELETE FROM docs')
-    rows = []
-    for p in CONTENT.rglob('*'):
-        if not p.is_file() or p.suffix.lower() not in ALLOWED or p.name.startswith('.'): continue
-        rel = p.relative_to(CONTENT).as_posix()
-        text = extract_text(p)
-        if p.suffix.lower() in {'.pdf','.html','.htm','.txt','.md'}:
-            rows.append((rel,p.stem,category_of(p),text))
-        elif p.suffix.lower() == '.zim':
-            rows.append((rel,p.stem,category_of(p),'ZIM archive offline encyclopedia Kiwix'))
-    con.executemany('INSERT INTO docs(path,title,category,body) VALUES(?,?,?,?)', rows)
-    con.commit(); con.close()
+    """Incrementally reconcile the FTS index without blocking dashboard startup."""
+    set_index_status(state='scanning', error=None)
+    con = None
+    try:
+        con = db_connect()
+        files = {}
+        for p in CONTENT.rglob('*'):
+            if not p.is_file() or p.name.startswith('.') or p.suffix.lower() not in INDEX_EXTS:
+                continue
+            rel = p.relative_to(CONTENT).as_posix()
+            stat = p.stat()
+            files[rel] = (p, stat.st_size, stat.st_mtime_ns)
+
+        known = {path: (size, mtime_ns) for path, size, mtime_ns in
+                 con.execute('SELECT path,size,mtime_ns FROM file_state')}
+        # Upgrade an older index in place: retain rows already indexed and seed
+        # their fingerprints so the first incremental launch needn't reparse them.
+        legacy_paths = {row[0] for row in con.execute('SELECT path FROM docs')}
+        for rel in legacy_paths - set(known):
+            if rel in files:
+                _, size, mtime_ns = files[rel]
+                con.execute('INSERT OR IGNORE INTO file_state(path,size,mtime_ns,indexed_at) VALUES(?,?,?,?)',
+                            (rel, size, mtime_ns, time.time()))
+                known[rel] = (size, mtime_ns)
+            else:
+                con.execute('DELETE FROM docs WHERE path=?', (rel,))
+
+        removed = set(known) - set(files)
+        for rel in removed:
+            con.execute('DELETE FROM docs WHERE path=?', (rel,))
+            con.execute('DELETE FROM file_state WHERE path=?', (rel,))
+        con.commit()
+
+        pending = [(rel, *files[rel]) for rel, fingerprint in files.items()
+                   if known.get(rel) != (fingerprint[1], fingerprint[2])]
+        indexed_count = con.execute('SELECT count(*) FROM file_state').fetchone()[0]
+        set_index_status(state='indexing' if pending else 'ready', indexed=indexed_count,
+                         total=indexed_count + len(pending), pending=len(pending), error=None)
+
+        batch = []
+        for i, (rel, path, size, mtime_ns) in enumerate(pending, start=1):
+            text = 'ZIM archive offline encyclopedia Kiwix' if path.suffix.lower() == '.zim' else extract_text(path)
+            batch.append((rel, path, size, mtime_ns, text))
+            if i % 10 == 0 or i == len(pending):
+                for batch_rel, batch_path, batch_size, batch_mtime, batch_text in batch:
+                    con.execute('DELETE FROM docs WHERE path=?', (batch_rel,))
+                    con.execute('INSERT INTO docs(path,title,category,body) VALUES(?,?,?,?)',
+                                (batch_rel, batch_path.stem, category_of(batch_path), batch_text))
+                    con.execute('INSERT OR REPLACE INTO file_state(path,size,mtime_ns,indexed_at) VALUES(?,?,?,?)',
+                                (batch_rel, batch_size, batch_mtime, time.time()))
+                con.commit()
+                set_index_status(state='indexing' if i < len(pending) else 'ready',
+                                 indexed=indexed_count + i, total=indexed_count + len(pending),
+                                 pending=len(pending) - i, error=None)
+                batch.clear()
+        con.commit()
+        final_count = con.execute('SELECT count(*) FROM file_state').fetchone()[0]
+        set_index_status(state='ready', indexed=final_count, total=final_count, pending=0, error=None)
+    except Exception as exc:
+        logging.exception('Index reconciliation failed')
+        set_index_status(state='error', error=str(exc))
+    finally:
+        if con is not None:
+            con.close()
 
 def byte_size(p: Path) -> int:
     try: return p.stat().st_size
@@ -143,23 +211,49 @@ class Handler(BaseHTTPRequestHandler):
             d=shutil.disk_usage(ROOT)
             files=sum(1 for p in CONTENT.rglob('*') if p.is_file() and not p.name.startswith('.'))
             sizes={k[0]:sum(byte_size(p) for p in (CONTENT/k[0]).rglob('*') if p.is_file() and not p.name.startswith('.')) for k in K}
-            self.send_json({'volume':str(ROOT.parent),'total':d.total,'used':d.used,'free':d.free,'files':files,'sizes':sizes,'kiwix': 'http://127.0.0.1:8081' if (shutil.which('kiwix-serve') or (ROOT / 'app' / 'bin' / 'kiwix-serve').is_file()) else None}); return
+            self.send_json({'volume':str(ROOT.parent),'total':d.total,'used':d.used,'free':d.free,'files':files,'sizes':sizes,'index':get_index_status(),'kiwix': 'http://127.0.0.1:8081' if (shutil.which('kiwix-serve') or (ROOT / 'app' / 'bin' / 'kiwix-serve').is_file()) else None}); return
+        if u.path == '/api/index-status':
+            self.send_json(get_index_status()); return
         if u.path == '/api/categories':
             result=[]
             for slug,title,desc,icon in K:
                 folder=CONTENT/slug; items=[]
                 if folder.exists():
-                    for p in sorted(folder.rglob('*')):
-                        if p.is_file() and p.suffix.lower() in ALLOWED and not p.name.startswith('.'):
-                            items.append({'name':p.name,'path':p.relative_to(CONTENT).as_posix(),'ext':p.suffix.lower(),'size':byte_size(p)})
-                result.append({'slug':slug,'title':title,'description':desc,'icon':icon,'items':items})
+                    if slug == 'military':
+                        item_count = sum(1 for p in folder.rglob('*.pdf') if p.is_file() and not p.name.startswith('.'))
+                    else:
+                        for p in sorted(folder.rglob('*')):
+                            if p.is_file() and p.suffix.lower() in ALLOWED and not p.name.startswith('.'):
+                                items.append({'name':p.name,'path':p.relative_to(CONTENT).as_posix(),'ext':p.suffix.lower(),'size':byte_size(p)})
+                        item_count = len(items)
+                else:
+                    item_count = 0
+                result.append({'slug':slug,'title':title,'description':desc,'icon':icon,'items':items,'item_count':item_count})
             self.send_json(result); return
         if u.path == '/api/search':
-            q=parse_qs(u.query).get('q',[''])[0].strip()
+            params=parse_qs(u.query)
+            q=params.get('q',[''])[0].strip()
             if len(q)<2: self.send_json({'results':[]}); return
             try:
-                con=db_connect(); safe=' '.join('"'+w.replace('"','')+'"' for w in q.split() if w)
-                rows=con.execute('SELECT path,title,category,snippet(docs,3,\'<mark>\',\'</mark>\',\'…\',12) FROM docs WHERE docs MATCH ? ORDER BY rank LIMIT 30',(safe,)).fetchall(); con.close()
+                con=sqlite3.connect(INDEX, timeout=30); safe=' '.join('"'+w.replace('"','')+'"' for w in q.split() if w)
+                clauses=['docs MATCH ?']; args=[safe]
+                category=params.get('category',[''])[0]
+                if category in {entry[0] for entry in K}:
+                    clauses.append('category=?'); args.append(category)
+                elif params.get('include_military',['0'])[0] != '1':
+                    clauses.append("category!='military'")
+                if category == 'military':
+                    collection=params.get('collection',[''])[0]
+                    branch=params.get('branch',[''])[0]
+                    if collection in MILITARY_COLLECTIONS:
+                        prefix='military/'+collection+'/'
+                        if branch in MILITARY_BRANCHES:
+                            prefix += branch+'/'
+                        clauses.append('path LIKE ?'); args.append(prefix+'%')
+                    elif branch in MILITARY_BRANCHES:
+                        clauses.append('path LIKE ?'); args.append('%/'+branch+'/%')
+                sql='SELECT path,title,category,snippet(docs,3,\'<mark>\',\'</mark>\',\'…\',12) FROM docs WHERE '+' AND '.join(clauses)+' ORDER BY rank LIMIT 30'
+                rows=con.execute(sql,args).fetchall(); con.close()
                 self.send_json({'results':[{'path':r[0],'title':r[1],'category':r[2],'snippet':r[3]} for r in rows]})
             except sqlite3.Error: self.send_json({'results':[],'error':'Search index is not ready. Start the library again to rebuild it.'},503)
             return
@@ -207,8 +301,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200); self.send_header('Content-Type',typ); self.send_header('Content-Length',str(len(data))); self.end_headers(); self.wfile.write(data)
 
 def main():
-    build_index()
     server=ThreadingHTTPServer((HOST,PORT),Handler)
     print(f'Offline Field Library: http://{HOST}:{PORT}')
+    threading.Thread(target=build_index, name='library-indexer', daemon=True).start()
     server.serve_forever()
 if __name__=='__main__': main()

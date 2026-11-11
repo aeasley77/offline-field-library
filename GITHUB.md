@@ -1,6 +1,6 @@
 # GitHub source backup and sharing
 
-Private source repository: <https://github.com/aeasley77/offline-field-library>
+Public source repository: <https://github.com/aeasley77/offline-field-library>
 
 ## What GitHub contains
 
@@ -10,11 +10,11 @@ It does not contain the approximately 119 GiB Wikipedia ZIM, downloaded referenc
 
 The repository is a source and documentation copy, not a full portable application package. To run the finished library, use the full directory on the external SSD and its bundled launchers, Python runtimes, Kiwix executables, and local content data. Those runtime and content files are intentionally omitted from GitHub.
 
-The dashboard's **Military Field Manuals** category links to the live T.REX ARMS Vault. The 4,215-publication collection has no published bulk archive in the reviewed documentation; its individual PDFs/EPUBs are not mirrored here. The Vault's robots policy disallows its internal catalog APIs, and the site may change. Selected offline additions should retain individual source URLs and distribution statements in `content/military/SOURCES.md`.
+The dashboard's **Military Field Manuals** category searches local PDFs and includes collection/branch filters. The main search excludes military manuals by default and has a toggle to include them. The user's 4,215 PDF and 4,215 EPUB copies remain on the SSD and are excluded from GitHub. Their user-reported provenance and inventory are documented in `content/military/SOURCES.md`.
 
 ## Share it with coworkers
 
-Because the repository is private, coworkers cannot view it until invited. On GitHub, open the repository, choose **Settings → Collaborators**, and invite their GitHub username or email. Share the technical case-study PDF from `docs/` as well, or download it for a presentation.
+The repository is public, so coworkers can view and clone the source at the link above. Share the technical case-study PDF from `docs/` as well, or download it for a presentation. The large reference collection and runtime packages remain excluded.
 
 ## Continue development
 

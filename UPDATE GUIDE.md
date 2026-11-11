@@ -9,7 +9,7 @@ Updates require an internet connection. The dashboard itself remains local and u
 3. Download new material to a temporary folder outside `content/` (for example, `backups/_incoming/`). The app scans `content/`, so do not stage partial files there. Do not replace the working copy yet.
 4. Verify the publisher's checksum when provided. Open the downloaded file and confirm it is readable.
 5. Move the new version into the relevant `content/<category>/` folder under a new, dated filename. Keep the previous version until you have confirmed the replacement works.
-6. Restart the dashboard so its search index is rebuilt. Open the new file from the dashboard and test Kiwix separately if applicable.
+6. New or changed local PDFs, HTML, text, and Markdown files are detected and added to the search index in the background when the dashboard next starts. The dashboard is available while indexing runs; its search status shows progress. An unchanged file keeps its existing index entry. Deleted files are removed from search on the next start.
 7. Keep the superseded file in a backup/archive folder until the owner explicitly decides otherwise. Do not delete or overwrite existing files as part of a routine update.
 
 ## Kiwix archives
@@ -25,3 +25,5 @@ Select areas you may realistically need, such as home, likely evacuation destina
 ## Other references
 
 Check official publishers for updated PDFs or offline packages. Preserve citation/source URLs and publication dates in filenames or a simple notes file. Review licenses and terms before redistributing materials. Maintain a second backup of the `content/` folder; the SSD is one physical device and can fail or be lost.
+
+For a large new PDF collection, expect its first indexing pass to take longer. The dashboard starts before indexing finishes. Military manuals have a dedicated local search and collection/branch filters; the main search excludes them by default, with an option to include them. EPUB files are available from their content folder but are not currently full-text indexed.

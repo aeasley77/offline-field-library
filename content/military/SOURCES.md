@@ -1,13 +1,14 @@
 # Sources: Military Field Manuals
 
-## T.REX ARMS Field Manual Vault
+## Offline Vault collection (user-supplied)
 
-- Catalog: https://www.trex-arms.com/field-manual-vault
+- Reported source: T.REX ARMS Field Manual Vault, https://www.trex-arms.com/field-manual-vault
 - FAQ: https://www.trex-arms.com/field-manual-vault/faq
-- Last reviewed: 2026-11-09
-- The Vault reported 4,215 publications and 724,471 pages, with individually downloadable PDF and EPUB editions. It includes current doctrine, recent archive, lessons learned, and historic materials across U.S. military branches.
-- This library provides a link to the live catalog; it does not mirror the Vault files. The catalog requires internet access. Its landing page describes the material as public-domain resources, but this project has not independently established rights for every scan, edition, or embedded third-party element. Before copying any item for offline storage or sharing, check its publication's distribution statement and the source's current terms. Preserve title, designation, edition/date, source URL, and distribution statement here.
+- Provenance: the user reports receiving the collection from a friend who downloaded it from the Vault and copying it to this library. We have not independently verified every file's originating Vault record or distribution status.
+- Inventory observed on the SSD on 2026-11-10: 4,215 PDF files and 4,215 EPUB files, organized under collection / branch / publication series; approximately 67 GB total. PDFs are the search-indexed format. EPUB copies are retained as alternate reading files but are not currently included in full-text search.
+- Storage: keep this folder hierarchy intact. The application searches the local PDF text; the content files themselves are excluded from GitHub.
+- Rights and safety: the Vault describes its resources generally as public domain, but this project has not independently established reuse rights for every publication, scan, or embedded third-party element. Preserve each publication's distribution statement and follow its terms before redistribution. Prefer current official editions for safety-critical use; archived doctrine may be outdated.
 
-## Adding selected manuals for offline use
+## Adding or replacing manuals
 
-Place verified files in this folder and record their provenance above. The application indexes searchable PDF text and EPUB text may be read with compatible local software. Prefer official current publications for operational, medical, or other safety-critical guidance. Older doctrine is historical reference and can be superseded.
+When adding or replacing items, record the original Vault page or direct source URL when known, designation, edition/date, collection, and distribution statement. Copy files into the existing collection / branch / series structure. On the next application launch, the incremental indexer will add new PDFs, refresh changed ones, and remove search entries for files that were deleted. The dashboard can be used while indexing continues.

@@ -7,3 +7,16 @@
 .rail-close{display:none}
 @media(max-width:760px){.rail-close{display:block}}
 @media(max-width:760px){.topbar .crumb{font-size:8px}.map-launch{margin-left:0;margin-right:13px;padding:8px 9px;font-size:8px}.top-status{margin-right:10px}}
+.index-status{display:block;margin-top:9px;color:#547658;font:10px var(--mono);letter-spacing:.01em}
+.search-band form{height:auto;min-height:47px;flex-wrap:wrap;gap:4px}
+.military-toggle{display:flex;align-items:center;gap:6px;padding:7px 9px;color:#506a52;font-size:10px;white-space:nowrap}
+.military-toggle input{accent-color:#315c48}
+.military-search{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 12px}
+.military-search input,.military-search select{min-height:40px;border:1px solid #dfe2da;background:#fff;padding:0 11px;color:var(--ink);font:11px var(--sans)}
+.military-search input{flex:1;min-width:220px}
+.military-search select{max-width:190px}
+.military-search button{min-height:40px;padding:0 15px;border:0;background:#315c48;color:#fff;font:9px var(--mono);letter-spacing:.06em;cursor:pointer}
+.military-search button span{padding-left:7px}
+.military-results{padding:6px 0 10px}
+.collection-note{font-size:10px!important;color:#7a827a}
+@media(max-width:760px){.search-band form{align-items:stretch}.military-toggle{width:100%;padding:8px 3px}.military-search{display:grid;grid-template-columns:1fr}.military-search input,.military-search select{max-width:none;width:100%}}
